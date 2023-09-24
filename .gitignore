@@ -1,0 +1,8 @@
+Debug/
+*.dll
+*.vcxproj
+*.filters
+*.user
+x64/
+del/
+
