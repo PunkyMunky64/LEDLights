@@ -8,6 +8,7 @@
 #include <functional>
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
+#include <thread>
 
 typedef unsigned char u8;
 
@@ -38,6 +39,7 @@ void test_TickLED()  {
             for (int i = 1; i < cols.size(); i++) {
                 active = Blending::add_asymptotic(active, cols[i]);
             }
+            return Colors::RGBu8(active.r, active.g, active.b);
         }
         });
     //LightPoint(std::function<float(float elapsed, int location)> velocity, std::function<float(float dist)> intensity_distance, std::function<Colors::RGBu8(float elapsed, int location)> color, std::function <Colors::RGBu8(Colors::RGBu8, float multiplier)> intensity, int left_max_radius, int right_max_radius);
@@ -45,7 +47,8 @@ void test_TickLED()  {
         return 1.0;
     };
     std::function<float(float dist)> intensity_distance = [](float dist) {
-        return 1.0 - dist * 0.2;
+        //return 1.0 - dist * 0.2;
+        return 1.0;
     };
     std::function<Colors::RGBu8(float elapsed, int location)> color = [](float elapsed, int location) {
         return Colors::RGBu8(255, 0, 0);
@@ -58,7 +61,7 @@ void test_TickLED()  {
         intensity_distance,
         color,
         intensity
-        ,5,5,10);
+        ,0, 100, 10, 900);
     controller.add_entity(&point1);
     LEDGraphics g(900, 3, (u8*)&data, 800, 800);
 
@@ -67,6 +70,9 @@ void test_TickLED()  {
 
     g.set_custom_configuration(square_i_cosine_lambda(900), square_i_sine_lambda(900), square_partition_size_lambda(900));
     g.bind_to_active_gfx();
+    //auto thr = std::thread(Gfx::run_active, 0, nullptr);
+    controller.set_active();
+    auto thr = std::thread(TickLEDs::run_active);
     Gfx::run_active(0, nullptr);
 }
 

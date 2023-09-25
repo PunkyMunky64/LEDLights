@@ -12,11 +12,11 @@ public:
 private:
 	u8* stream;
 	int led_count;
+	//Channels = 3
 	std::function<Colors::RGBu8(std::vector<Colors::RGBu8>)> blend;
-private:
 	std::vector<LEDEntity*> entities;	//Pointers for polymorphism
 	std::vector<std::vector<Colors::RGBu8>> cache; //eachled, each color rendered (to blend, that's why it's cached)
-	//Channels = 3
+	static TickLEDs* active;
 public:
 	struct LEDColor {
 		int i;
@@ -41,5 +41,7 @@ public:
 	void add_entity(LEDEntity* entity) {
 		entities.push_back(entity);
 	}
+	void set_active();
+	static void run_active();
 	TickLEDs(u8* stream, int led_count, std::function<Colors::RGBu8(std::vector<Colors::RGBu8>)> blend);
 };
