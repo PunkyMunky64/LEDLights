@@ -12,10 +12,9 @@ std::vector<TickLEDs::LEDColor> LightPoint::get() {
         if (j >= led_count) {
             j -= led_count;
         }
-        float dist = (float)j - location;
+        float dist = (float)i - location; //i not j to avoid rollover errors
         auto c = intensity(color(elapsed, j), intensity_distance(dist));
-        //std::cout << "i, intensity: " << j << "; " << (int)c.r << "," << (int)c.g << "," << (int)c.b << "\n";
-        ret.push_back(TickLEDs::LEDColor(j, intensity(color(elapsed, j), intensity_distance(dist))));
+        ret.push_back(TickLEDs::LEDColor(j, c));
     }
     return ret;
 }

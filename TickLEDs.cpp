@@ -58,7 +58,7 @@ void TickLEDs::run_active() {
 		active->render();
 		auto temp = std::chrono::system_clock::now();
 		std::chrono::duration<double> elapsed_seconds = temp - start;
-		std::cout << elapsed_seconds.count() << '\n';
+		//std::cout << elapsed_seconds.count() << '\n';
 		start = temp;
 		active->tick(elapsed_seconds.count() * 1000);
 	}
