@@ -26,7 +26,7 @@ void Gfx::run_active(int argc, char** argv) {
     glutInitWindowPosition(active_gfx->x, active_gfx->y);     // Position the window's initial top-left corner
     glutCreateWindow("");                                     // Create a window with the given title
     glutDisplayFunc(display_active);                          // Register display callback handler for window re-paint
-    glutTimerFunc(1000 / 165, timer, 0);
+    glutTimerFunc(1000/165, timer, 0);
     glutMainLoop();                                           // Enter the infinitely event-processing loop
 }
 
