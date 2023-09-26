@@ -38,7 +38,6 @@ void TickLEDs::render() {
 	}
 	for (int i = 0; i < cache.size(); i++) {
 		auto n = blend(cache[i]);
-		//std::cout << "render: " << (int)n.r << " " << (int)n.g << " " << (int)n.b << "\n";
 		n.save_to_pointer(stream + i * 3);
 	}
 }
@@ -58,7 +57,6 @@ void TickLEDs::run_active() {
 		active->render();
 		auto temp = std::chrono::system_clock::now();
 		std::chrono::duration<double> elapsed_seconds = temp - start;
-		//std::cout << elapsed_seconds.count() << '\n';
 		start = temp;
 		active->tick(elapsed_seconds.count() * 1000);
 	}

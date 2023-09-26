@@ -1,3 +1,9 @@
+//Todo:
+//Death function of leds
+//More librarying
+//Optimizations
+//Shader LEDs
+
 #include "LedBuildingBlocks.h"
 #include <functional>
 #include <iostream>
@@ -30,18 +36,6 @@ void LightPoint::tick_function(float dt) {
         location -= led_count;
     }
 }
-
-/*LightPoint::LightPoint(std::function<float(float elapsed, int location)> velocity, std::function<float(float dist)> intensity_distance, std::function<Colors::RGBu8(float elapsed, int location)> color, std::function <Colors::RGBu8(Colors::RGBu8, float multiplier)> intensity, int left_max_radius, int right_max_radius, int initial_location, int led_count) {
-    this->velocity = velocity;
-    this->intensity_distance = intensity_distance;
-    this->color = color;
-    this->intensity = intensity;
-    this->left_max_radius = left_max_radius;
-    this->right_max_radius = right_max_radius;
-    this->location = initial_location;
-    this->led_count = led_count;
-    this->elapsed = 0;
-}*/
 
 float MovingSource::velocity(float elapsed, int location)
 {
