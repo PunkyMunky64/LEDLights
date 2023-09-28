@@ -9,13 +9,22 @@ class TickLEDs {
 public:
 	class LEDEntity;
 	class LEDColor;
+	static std::function<Colors::RGBu8(Colors::RGBu8, Colors::RGBu8)> add_blending;
+	static std::function<Colors::RGBu8(Colors::RGBu8, Colors::RGBu8)> asymptotic_add_blending;
 private:
 	u8* stream;
 	int led_count;
 	//Channels = 3
-	std::function<Colors::RGBu8(std::vector<Colors::RGBu8>)> blend;
+	enum BlendFunction {
+		NON_ASSOCIATIVE_VECTOR, //more versatile
+		ASSOCIATIVE_BLACK_BASE //much faster
+	};
+	BlendFunction blend_function;
+	std::function<Colors::RGBu8(std::vector<Colors::RGBu8>)> blend_function_non;
+	std::function<Colors::RGBu8(Colors::RGBu8, Colors::RGBu8)> blend_function_associative;
 	std::vector<LEDEntity*> entities;	//Pointers for polymorphism
-	std::vector<std::vector<Colors::RGBu8>> cache; //eachled, each color rendered (to blend, that's why it's cached)
+	std::vector<std::vector<Colors::RGBu8>> cache_non; //eachled, each color rendered (to blend, that's why it's cached)
+	std::vector<Colors::RGBu8> cache_associative;
 	static TickLEDs* active;
 public:
 	struct LEDColor {
@@ -28,13 +37,19 @@ public:
 			this->i = i;
 			this->rgb = rgb;
 		}
+		LEDColor() {
+			this->i = -1;
+		}
+		static LEDColor Dead() {
+			return LEDColor();
+		}
 	};
 	class LEDEntity {
 	public:
-		virtual std::vector<LEDColor> get();
-		virtual void tick_function(float dt);
+		virtual LEDColor get_next() = 0; //Return 0 if last one.
+		virtual void reset_iter() = 0;
+		virtual void tick_function(float dt) = 0;
 	};
-public:
 	void render();
 	void tick(float dt);
 	const u8* get_stream();
@@ -44,4 +59,5 @@ public:
 	void set_active();
 	static void run_active();
 	TickLEDs(u8* stream, int led_count, std::function<Colors::RGBu8(std::vector<Colors::RGBu8>)> blend);
+	TickLEDs(u8* stream, int led_count, std::function<Colors::RGBu8(Colors::RGBu8, Colors::RGBu8)> blend);
 };
