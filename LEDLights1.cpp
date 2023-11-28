@@ -27,22 +27,23 @@ void test_TickLED() {
     Colors::HSVu8 m(135, 200, 200);
     srand(time(NULL));
     
-    TickLEDs controller = TickLEDs((u8*)&data, leds, [](std::vector<Colors::RGBu8> cols) {
-        //TODO:
-        //Simplify all this sorta code into a "recursive associative binary" function handler,
-        //And an optimized version on the abstraction side.
-        if (cols.size() == 0) {
-            return Colors::RGBu8(0, 0, 0);
-        }
-        else {
-            auto active = cols[0];
-            for (int i = 1; i < cols.size(); i++) {
-                active = Blending::add_asymptotic(active, cols[i]);
-            }
-            return Colors::RGBu8(active.r, active.g, active.b);
-        }
-        });
-    MovingSource point1 = MovingSource(0.3, Colors::RGBu8(255, 0 ,0), 100, 100, 100, leds);
+    TickLEDs controller = TickLEDs((u8*)&data, leds, Blending::add);
+    MovingSource point1 = MovingSource(0.2, Colors::RGBu8(255, 0 ,0), 125, 200, 200, leds);
+    controller.add_entity(&point1);
+    LEDGraphics g(leds, 3, (u8*)&data, 800, 800);
+    g.set_custom_configuration(square_i_cosine_lambda(leds), square_i_sine_lambda(leds), square_partition_size_lambda(leds));
+    g.bind_to_active_gfx();
+    controller.set_active();
+    auto thr = std::thread(TickLEDs::run_active);
+    Gfx::run_active(0, nullptr);
+}
+
+void test_ShaderLED() {
+    constexpr int leds = 900;
+    u8 data[leds][3];
+    ShaderLEDs controller = ShaderLEDs((u8*)&data, leds);
+    //fix these motherfuckers what the hell is going on with explicit constructors and statics???????
+    ConstantLight point1 = ConstantLight(0.2, Colors::RGBu8(255, 0, 0), 125, 200, 200, leds);
     controller.add_entity(&point1);
     LEDGraphics g(leds, 3, (u8*)&data, 800, 800);
     g.set_custom_configuration(square_i_cosine_lambda(leds), square_i_sine_lambda(leds), square_partition_size_lambda(leds));

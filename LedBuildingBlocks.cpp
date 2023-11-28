@@ -9,21 +9,26 @@
 #include <iostream>
 #include <algorithm>
 
-std::vector<TickLEDs::LEDColor> LightPoint::get() {
-    auto ret = std::vector<TickLEDs::LEDColor>();
-    for (int i = location - left_max_radius; i <= location + right_max_radius; i++) {
-        int j = i;
-        if (j < 0) {
-            j += led_count; //Only guaranteed to protect from one interval around
-        }
-        if (j >= led_count) {
-            j -= led_count;
-        }
-        float dist = (float)i - location; //i not j to avoid rollover distance
-        auto c = intensity(color(elapsed, j), intensity_distance(dist));
-        ret.push_back(TickLEDs::LEDColor(j, c));
+TickLEDs::LEDColor LightPoint::get_next() {
+
+    //for (int i = location - left_max_radius; i <= location + right_max_radius; i++) {
+    int i = iter_i - left_max_radius + location;
+    if (i > location + right_max_radius) return TickLEDs::LEDColor::Dead();
+    int j = i;
+    if (j < 0) {
+        j += led_count; //Only guaranteed to protect from one interval around
     }
-    return ret;
+    if (j >= led_count) {
+        j -= led_count;
+    }
+    float dist = (float)i - location; //i not j to avoid rollover distance
+    auto c = intensity(color(elapsed, j), intensity_distance(dist));
+    iter_i++;
+    return TickLEDs::LEDColor(j, c);
+}
+
+void LightPoint::reset_iter() {
+    iter_i = 0;
 }
 
 void LightPoint::tick_function(float dt) {
@@ -65,4 +70,8 @@ MovingSource::MovingSource(float velocity, Colors::RGBu8 color, float isqlaw_coe
     this->right_max_radius = right_max;
     this->led_count = leds;
     this->location = 0;
+}
+
+Colors::RGBu8 ConstantLight::poll(float time_ms, float i) {
+    return color;
 }
