@@ -15,9 +15,26 @@ typedef unsigned char u8;
 void test();
 void test_LEDGfx();
 void test_TickLED();
+void test_ShaderLED();
 
 void main() {
     test_TickLED();
+}
+
+float velocity(float) {
+    return 1.0;
+}
+float isqLaw(float) {
+    return 100;
+}
+float redshift(float) {
+    return 1.0;
+}
+Colors::RGBu8 missleColor(float) {
+    return Colors::RGBu8(255, 0, 0);
+}
+float missleProbability(float dt, float) {
+    return dt / 1000;
 }
 
 void test_TickLED() {
@@ -28,8 +45,13 @@ void test_TickLED() {
     srand(time(NULL));
     
     TickLEDs controller = TickLEDs((u8*)&data, leds, Blending::add);
-    MovingSource point1 = MovingSource(0.2, Colors::RGBu8(255, 0 ,0), 125, 200, 200, leds);
-    controller.add_entity(&point1);
+    MissleStarter controller2((u8*)&data, leds, missleProbability, missleColor, isqLaw, redshift, velocity);
+    //MovingSource point1 = MovingSource(0.2, Colors::RGBu8(255, 0 ,0), 900.0, 9000.0, 450.0, 200, 200, leds);
+    //MovingSource point2 = MovingSource(0.3, Colors::RGBu8(0, 255, 0), 900.0, 9000.0, 450.0, 200, 200, leds);
+    MovingSource* point3 = new MovingSource(0.4, Colors::RGBu8(0, 0, 255), 900.0, 0.0, 4500.0, 450.0, 200, 200, leds);
+    //controller.add_entity(&point1);
+    //controller.add_entity(&point2);
+    controller.add_entity(point3);
     LEDGraphics g(leds, 3, (u8*)&data, 800, 800);
     g.set_custom_configuration(square_i_cosine_lambda(leds), square_i_sine_lambda(leds), square_partition_size_lambda(leds));
     g.bind_to_active_gfx();
@@ -38,18 +60,33 @@ void test_TickLED() {
     Gfx::run_active(0, nullptr);
 }
 
+class Instance : public ShaderLEDs {
+public:
+    Colors::RGBu8 poll(float time_ms, int i) override {
+        return Colors::RGBu8(250, 0, 0);
+    }
+    explicit Instance(u8* stream, int led_count) : ShaderLEDs(stream, led_count) {}
+};
+
 void test_ShaderLED() {
     constexpr int leds = 900;
     u8 data[leds][3];
-    ShaderLEDs controller = ShaderLEDs((u8*)&data, leds);
-    //fix these motherfuckers what the hell is going on with explicit constructors and statics???????
-    ConstantLight point1 = ConstantLight(0.2, Colors::RGBu8(255, 0, 0), 125, 200, 200, leds);
-    controller.add_entity(&point1);
+    auto cont = ConstantLight(Colors::RGBu8(255, 120, 2), (u8*)&data, leds);
+    class Instance : public ShaderLEDs {
+    public:
+        Colors::RGBu8 poll(float time_ms, int i) override {
+            //return Colors::RGBu8(abs((int)((time_ms/5)+(i * 510 / 900)) % 510 - 255), 0, 0);
+            return Colors::HSVu8(abs(((int)(i * 358 / 900 + time_ms / 10) % 358 - 179)), 255, 255).to_rgb();
+        }
+        explicit Instance(u8* stream, int led_count) : ShaderLEDs(stream, led_count) {}
+    };
+    Instance inst((u8*)&data, leds);
+    ShaderLEDs* controller = &inst;
     LEDGraphics g(leds, 3, (u8*)&data, 800, 800);
     g.set_custom_configuration(square_i_cosine_lambda(leds), square_i_sine_lambda(leds), square_partition_size_lambda(leds));
     g.bind_to_active_gfx();
-    controller.set_active();
-    auto thr = std::thread(TickLEDs::run_active);
+    controller->set_active();
+    auto thr = std::thread(ShaderLEDs::run_active);
     Gfx::run_active(0, nullptr);
 }
 

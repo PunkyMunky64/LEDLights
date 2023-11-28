@@ -23,15 +23,34 @@ TickLEDs::TickLEDs(u8* stream, int led_count, std::function<Colors::RGBu8(Colors
 }
 
 void TickLEDs::tick(float dt) {
+	elapsed += dt;
+	this->entity_handler(dt);
 	for (int i = 0; i < entities.size(); i++) {
+		if (!entities[i]) {
+			continue;
+		}
 		entities[i]->tick_function(dt);
 	}
 }
 
+int TickLEDs::get_led_count()
+{
+	return led_count;
+}
+
+void TickLEDs::entity_handler(float dt) {}
+
 void TickLEDs::render() {
+	//TODO: killing and memory management with old entities
 	if (blend_function == TickLEDs::BlendFunction::NON_ASSOCIATIVE_VECTOR) {
 		cache_non.assign(led_count, std::vector<Colors::RGBu8>({}));
 		for (int i = 0; i < entities.size(); i++) {
+			if (entities[i]->kill_condition()) {
+				entities[i] = nullptr;
+			}
+			if (!entities[i]) { //If null, skip
+				continue;
+			}
 			std::vector<TickLEDs::LEDColor> x;
 			entities[i]->reset_iter();
 			TickLEDs::LEDColor y;
@@ -52,6 +71,13 @@ void TickLEDs::render() {
 	else if (blend_function == TickLEDs::BlendFunction::ASSOCIATIVE_BLACK_BASE) {
 		cache_associative.assign(led_count, Colors::RGBu8());
 		for (int i = 0; i < entities.size(); i++) {
+			if (!entities[i]) { //If null, skip
+				continue;
+			}
+			if (entities[i]->kill_condition()) {
+				entities[i] = nullptr;
+				continue;
+			}
 			entities[i]->reset_iter();
 			TickLEDs::LEDColor y;
 			while (true) {
