@@ -21,8 +21,8 @@ public:
 	class LEDEntity;
 	struct LEDColor;
 	virtual void entity_handler(float dt);
-	static std::function<Colors::RGBu8(Colors::RGBu8, Colors::RGBu8)> add_blending;
-	static std::function<Colors::RGBu8(Colors::RGBu8, Colors::RGBu8)> asymptotic_add_blending;
+	// static std::function<Colors::RGBu8(Colors::RGBu8, Colors::RGBu8)> add_blending;
+	// static std::function<Colors::RGBu8(Colors::RGBu8, Colors::RGBu8)> asymptotic_add_blending;
 protected:
 	float elapsed;
 private:

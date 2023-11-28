@@ -46,16 +46,16 @@ void test_TickLED() {
     
     TickLEDs controller = TickLEDs((u8*)&data, leds, Blending::add);
     MissleStarter controller2((u8*)&data, leds, missleProbability, missleColor, isqLaw, redshift, velocity);
-    //MovingSource point1 = MovingSource(0.2, Colors::RGBu8(255, 0 ,0), 900.0, 9000.0, 450.0, 200, 200, leds);
-    //MovingSource point2 = MovingSource(0.3, Colors::RGBu8(0, 255, 0), 900.0, 9000.0, 450.0, 200, 200, leds);
+    MovingSource* point1 = new MovingSource(0.2, Colors::RGBu8(255, 0 ,0), 900.0, 0.0, 9000.0, 450.0, 200, 200, leds);
+    MovingSource* point2 = new MovingSource(0.3, Colors::RGBu8(0, 255, 0), 900.0, 0.0, 9000.0, 450.0, 200, 200, leds);
     MovingSource* point3 = new MovingSource(0.4, Colors::RGBu8(0, 0, 255), 900.0, 0.0, 4500.0, 450.0, 200, 200, leds);
-    //controller.add_entity(&point1);
-    //controller.add_entity(&point2);
+    controller.add_entity(point1);
+    controller.add_entity(point2);
     controller.add_entity(point3);
     LEDGraphics g(leds, 3, (u8*)&data, 800, 800);
     g.set_custom_configuration(square_i_cosine_lambda(leds), square_i_sine_lambda(leds), square_partition_size_lambda(leds));
     g.bind_to_active_gfx();
-    controller.set_active();
+    controller2.set_active();
     auto thr = std::thread(TickLEDs::run_active);
     Gfx::run_active(0, nullptr);
 }

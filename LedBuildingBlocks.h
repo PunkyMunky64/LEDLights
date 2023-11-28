@@ -1,6 +1,7 @@
 #pragma once
 #include "TickLEDs.h"
 #include "ShaderLEDs.h"
+#include "blending.h"
 class LightPoint : public TickLEDs::LEDEntity { //Abstract class
 public:
     //consts
@@ -88,7 +89,7 @@ public:
     std::function<float(float elapsed)> missleRedshiftRatio;
     std::function<float(float elapsed)> missleVelocity;
     void entity_handler(float dt) override;
-    explicit MissleStarter(u8* stream, int led_count, std::function<float(float dt, float elapsed)> missleProbability, std::function<Colors::RGBu8(float elapsed)> missleColor, std::function<float(float elapsed)> missleISQCoeff, std::function<float(float elapsed)> missleRedshiftRatio, std::function<float(float elapsed)> missleVelocity) : TickLEDs(stream, led_count, TickLEDs::asymptotic_add_blending) {
+    explicit MissleStarter(u8* stream, int led_count, std::function<float(float dt, float elapsed)> missleProbability, std::function<Colors::RGBu8(float elapsed)> missleColor, std::function<float(float elapsed)> missleISQCoeff, std::function<float(float elapsed)> missleRedshiftRatio, std::function<float(float elapsed)> missleVelocity) : TickLEDs(stream, led_count, Blending::add) {
         this->missleProbability = missleProbability;
         this->missleISQCoeff = missleISQCoeff;
         this->missleColor = missleColor;
