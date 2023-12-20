@@ -3,6 +3,7 @@
 #include <windows.h> 
 #include <GL/glut.h> 
 #include <functional>
+#include <iostream>
 
 Gfx* Gfx::active_gfx = nullptr;
 
@@ -32,7 +33,7 @@ void Gfx::run_active(int argc, char** argv) {
 
 void Gfx::set_display_func(void (Gfx::*display_func)(void)) {
     this->display_func = display_func;
-    this->display_func_is_stray_flag = true;
+    this->display_func_is_stray_flag = false;
 }
 
 void Gfx::set_display_func(void(*func)(void)) {

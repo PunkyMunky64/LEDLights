@@ -6,7 +6,7 @@
 
 typedef unsigned char u8;
 
-//TODO: Create vector interface, rolling array, to use for arduinos with lower memories
+//TODO: Create/find vector interface, rolling array, to use for arduinos with lower memories
 
 //Class that holds LEDEntities, Handles them, and controls them. Mostly lambda-based, can be extended for controlling the entities differently.
 //Only data that's passed into led entities (thru their virtual attached functions) is dt. They can track elapsed if needed.
@@ -21,14 +21,12 @@ public:
 	class LEDEntity;
 	struct LEDColor;
 	virtual void entity_handler(float dt);
-	static std::function<Colors::RGBu8(Colors::RGBu8, Colors::RGBu8)> add_blending;
-	static std::function<Colors::RGBu8(Colors::RGBu8, Colors::RGBu8)> asymptotic_add_blending;
 protected:
 	float elapsed;
 private:
-	u8* stream;
-	int led_count;
+	u8* stream; //rgbrgb...
 	//Channels = 3
+	int led_count;
 	enum BlendFunction {
 		NON_ASSOCIATIVE_VECTOR, //more versatile
 		ASSOCIATIVE_BLACK_BASE //much faster
@@ -36,7 +34,7 @@ private:
 	BlendFunction blend_function;
 	std::function<Colors::RGBu8(std::vector<Colors::RGBu8>)> blend_function_non;
 	std::function<Colors::RGBu8(Colors::RGBu8, Colors::RGBu8)> blend_function_associative;
-	std::vector<std::unique_ptr<LEDEntity>> entities;	//Pointers for polymorphism
+	std::vector<std::shared_ptr<LEDEntity>> entities;  //Pointers for polymorphism
 	std::vector<std::vector<Colors::RGBu8>> cache_non; //eachled, each color rendered (to blend, that's why it's cached)
 	std::vector<Colors::RGBu8> cache_associative;
 	static TickLEDs* active;
@@ -69,8 +67,9 @@ public:
 	void tick(float dt);
 	int get_led_count();
 	const u8* get_stream();
-	void add_entity(LEDEntity* entity) {
+	std::weak_ptr<LEDEntity> add_entity(LEDEntity* entity) {
 		entities.emplace_back(entity);
+		return std::weak_ptr<LEDEntity>{entities.back()};
 	}
 	void set_active();
 	static void run_active();

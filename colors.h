@@ -2,6 +2,8 @@
 
 typedef unsigned char u8;
 
+//TODO implement HSV and RGB for these classes
+
 namespace Colors {
 	struct HSVu8;
 	struct RGBu8 {
@@ -26,3 +28,21 @@ namespace Colors {
 		RGBu8 to_rgb();
 	};
 }
+
+class ColorModel {
+	int x;
+	int y;
+	int z;
+	virtual Colors::RGBu8 to_rgb() = 0;
+	ColorModel(int x, int y, int z) {
+		this->x=x;this->y=y;this->z=z;
+	}
+};
+
+class ColorPath {
+	int theta;
+	virtual Colors::RGBu8 to_rgb() = 0;
+	ColorPath(int theta) {
+		this->theta=theta;
+	}
+};

@@ -23,15 +23,35 @@ TickLEDs::TickLEDs(u8* stream, int led_count, std::function<Colors::RGBu8(Colors
 }
 
 void TickLEDs::tick(float dt) {
+	elapsed += dt;
+	this->entity_handler(dt);
 	for (int i = 0; i < entities.size(); i++) {
+		if (!entities[i]) {
+			continue;
+		}
 		entities[i]->tick_function(dt);
 	}
 }
 
+int TickLEDs::get_led_count()
+{
+	return led_count;
+}
+
+void TickLEDs::entity_handler(float dt) {}
+
 void TickLEDs::render() {
+	//TODO: killing and memory management with old entities
 	if (blend_function == TickLEDs::BlendFunction::NON_ASSOCIATIVE_VECTOR) {
 		cache_non.assign(led_count, std::vector<Colors::RGBu8>({}));
+		//TODO resolve possible multithread issues with kill condition in render and wave splitting in entity handler
 		for (int i = 0; i < entities.size(); i++) {
+			if (entities[i]->kill_condition()) {
+				entities[i] = nullptr;
+			}
+			if (!entities[i]) { //If null, skip
+				continue;
+			}
 			std::vector<TickLEDs::LEDColor> x;
 			entities[i]->reset_iter();
 			TickLEDs::LEDColor y;
@@ -51,16 +71,21 @@ void TickLEDs::render() {
 	}
 	else if (blend_function == TickLEDs::BlendFunction::ASSOCIATIVE_BLACK_BASE) {
 		cache_associative.assign(led_count, Colors::RGBu8());
-		for (int i = 0; i < entities.size(); i++) {
+		for (int i = 0; i < entities.size(); i++) { //Handle each entity
+			if (!entities[i] || entities[i]->kill_condition()) { //If null or needs to kill, skip
+				entities[i] = nullptr;
+				continue;
+			}
 			entities[i]->reset_iter();
 			TickLEDs::LEDColor y;
-			while (true) {
+			while (true) { //Handle each entity
 				y = entities[i]->get_next();
 				if (y.i == -1) break;
 				//std::cout << "Blending: " << (int)cache_associative[y.i].r << "," << (int)cache_associative[y.i].g << "," << (int)cache_associative[y.i].b << " with " << (int)y.rgb.r << "," << (int)y.rgb.g << "," << (int)y.rgb.g << "," << (int)y.rgb.b << '\n';
 				cache_associative[y.i] = blend_function_associative(cache_associative[y.i], y.rgb);
 			}
 		}
+		//Flush into stream
 		for (int i = 0; i < cache_associative.size(); i++) {
 			cache_associative[i].save_to_pointer(stream + i * 3);
 		}
