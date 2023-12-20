@@ -30,6 +30,12 @@ float considerable_isqlaw_distance(float coeff) {
     return coeff / SQRT_CONSIDERABLE_PERCENTAGE;
 }//Returns how far an ISQlaw will yield over CONSIDERABLE_PERCENTAGE% of the value at 1 unit away, for truncating
 
+
+
+float considerable_isqlaw_distance(float coeff) {
+    return coeff / SQRT_CONSIDERABLE_PERCENTAGE;
+}//Returns how far an ISQlaw will yield over CONSIDERABLE_PERCENTAGE% of the value at 1 unit away, for truncating
+
 TickLEDs::LEDColor LightPoint::get_next() {
     //a yield function which is equal to a loop like: for (int i = location - left_max_radius; i <= location + right_max_radius; i++) {
 

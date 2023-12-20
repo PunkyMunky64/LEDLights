@@ -35,6 +35,14 @@ void test_MissleStarter() {
     Gfx::run_active(0, nullptr);
 }
 
+class Instance : public ShaderLEDs {
+public:
+    Colors::RGBu8 poll(float time_ms, int i) override {
+        return Colors::RGBu8(250, 0, 0);
+    }
+    explicit Instance(u8* stream, int led_count) : ShaderLEDs(stream, led_count) {}
+};
+
 void test_ShaderLED() {
     constexpr int leds = 900;
     u8 data[leds][3];
