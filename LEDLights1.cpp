@@ -17,6 +17,7 @@ void test_LEDGfx();
 void test_ShaderLED();
 void test_MissleStarter();
 
+
 void main() {
     test_ShaderLED();
 }
@@ -33,21 +34,13 @@ void test_MissleStarter() {
     controller->set_active();
     auto thr = std::thread(TickLEDs::run_active);
     Gfx::run_active(0, nullptr);
-}
-
-class Instance : public ShaderLEDs {
-public:
-    Colors::RGBu8 poll(float time_ms, int i) override {
-        return Colors::RGBu8(250, 0, 0);
-    }
-    explicit Instance(u8* stream, int led_count) : ShaderLEDs(stream, led_count) {}
 };
 
 void test_ShaderLED() {
     constexpr int leds = 900;
     u8 data[leds][3];
     srand(time(NULL));
-    auto controller = ShaderLEDs_Controllers::rainbow001_001((u8*)data, leds); //Can be allocated on stack because it's passed to thread which maintains this stack? maybe? //TODO understand
+    auto controller = ShaderLEDs_Controllers::rainbow002_001((u8*)data, leds); //Can be allocated on stack because it's passed to thread which maintains this stack? maybe? //TODO understand
 
     LEDGraphics* g = new LEDGraphics(leds, 3, (u8*)&data, 800, 800); //Allocate memory for it because this stack is going to be destroyed by glutInit
     g->set_custom_configuration(square_i_cosine_lambda(leds), square_i_sine_lambda(leds), square_partition_size_lambda(leds));

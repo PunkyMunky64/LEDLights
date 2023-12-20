@@ -26,11 +26,6 @@ Colors::RGBu8 randomHsvColor(u8 minh, u8 maxh, u8 s, u8 v) {
 
 //--------------------------------------------------------------------------------------------------------------------------------//
 
-float considerable_isqlaw_distance(float coeff) {
-    return coeff / SQRT_CONSIDERABLE_PERCENTAGE;
-}//Returns how far an ISQlaw will yield over CONSIDERABLE_PERCENTAGE% of the value at 1 unit away, for truncating
-
-
 
 float considerable_isqlaw_distance(float coeff) {
     return coeff / SQRT_CONSIDERABLE_PERCENTAGE;
@@ -272,3 +267,16 @@ void RandomBellWaves::add_bellwave(BellWave *wave) {
 
 
 //--------------------------------------------------------------------------------------------------------------------------------//
+
+
+//Colors::RGBu8 EvolvingWheelRainbow::poll(float time_ms, int i) {
+//    float timealpha_angle = mod2pi(time_ms * alpha); //-pi to pi
+//    float timegamma_angle = mod2pi(time_ms * gamma); //-pi to pi
+//    float theta = (float)i * 2.0 * PI / (float)led_count - PI;
+//
+//    float thetaoffset = timegamma_angle;
+//    float reltheta = mod2pi(theta - thetaoffset);
+//    float flippedreltheta = reltheta > PI ? modnpipi(-reltheta) : reltheta;
+//    float sidetheta = flippedreltheta * beta;
+//    return path->to_rgb(degree(sidetheta + timealpha_angle));
+//}

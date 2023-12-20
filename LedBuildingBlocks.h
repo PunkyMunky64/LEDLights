@@ -2,6 +2,7 @@
 #include "TickLEDs.h"
 #include "ShaderLEDs.h"
 #include "blending.h"
+#include "lib.h"
 //#include <stdlib.h>
 
 //Functions
@@ -142,14 +143,63 @@ public:
 //--------------------------------------------------------------------------------------------------------------------------------//
 
 
+class ArbitraryCosinePath : public Colors::ColorPath360 {
+public:
+    virtual Colors::RGBu8 to_rgb(float theta) override {
+        // Time varying pixel color
+        u8 colr = 255 * (0.5 + 0.5 * cos(rad(theta) + 0));
+        u8 colg = 255 * (0.5 + 0.5 * cos(rad(theta) + 2 + 0.5));
+        u8 colb = 255 * (0.5 + 0.5 * cos(rad(theta) + 4));
+        
+        // Output to screen
+        std::cout << "Outputting RGB values: " << (int)colr << ", " << (int)colg << ", " << (int)colb << "\n";
+        return Colors::RGBu8(colr, colg, colb);
+    }
+};
+
+
+//--------------------------------------------------------------------------------------------------------------------------------//
+
+
 class MovingRainbow : public ShaderLEDs {
 public:
-int leds_per_second;
+    int leds_per_second;
+    std::shared_ptr<Colors::ColorPath360> path;
     Colors::RGBu8 poll(float time_ms, int i) override {
-        return Colors::HSVu8(abs(((int)(i * 358 / 900 + (time_ms * leds_per_second) / 1000) % 358 - 179)), 255, 255).to_rgb();
+        return path->to_rgb((int)(i * 358 / led_count + time_ms * leds_per_second / 1000) % 360);
     }
-    explicit MovingRainbow(u8* stream, int led_count, int leds_per_second) : ShaderLEDs(stream, led_count) {
+    explicit MovingRainbow(u8* stream, int led_count, int leds_per_second, std::shared_ptr<Colors::ColorPath360> path) : ShaderLEDs(stream, led_count) {
         this->leds_per_second = leds_per_second;
+        this->path = path;
+    }
+};
+
+
+//--------------------------------------------------------------------------------------------------------------------------------//
+
+
+class EvolvingWheelRainbow : public ShaderLEDs {
+public:
+    float alpha; //dhsv dt
+    float beta;  //dhsv dtheta
+    float gamma; //dthetaoffset dt
+    std::shared_ptr<Colors::ColorPath360> path;
+    Colors::RGBu8 poll(float time_ms, int i) override {
+        float timealpha_angle = mod2pi(time_ms * alpha); //-pi to pi
+        float timegamma_angle = mod2pi(time_ms * gamma); //-pi to pi
+        float theta = (float)i * 2.0 * PI / (float)led_count - PI;
+
+        float thetaoffset = timegamma_angle;
+        float reltheta = mod2pi(theta - thetaoffset);
+        float flippedreltheta = reltheta > PI ? modnpipi(-reltheta) : reltheta;
+        float sidetheta = flippedreltheta * beta;
+        return path->to_rgb(degree(sidetheta + timealpha_angle));
+    }
+    explicit MovingRainbow(u8* stream, int led_count, float alpha, float beta, float gamma, std::shared_ptr<Colors::ColorPath360> path) : ShaderLEDs(stream, led_count) {
+        this->alpha = alpha;
+        this->beta = beta;
+        this->gamma = gamma;
+        this->path = path;
     }
 };
 
