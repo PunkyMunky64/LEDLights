@@ -19,7 +19,7 @@ void test_MissleStarter();
 
 
 void main() {
-    test_ShaderLED();
+    test_MissleStarter();
 }
 
 void test_MissleStarter() {
@@ -40,7 +40,7 @@ void test_ShaderLED() {
     constexpr int leds = 900;
     u8 data[leds][3];
     srand(time(NULL));
-    auto controller = ShaderLEDs_Controllers::rainbow002_001((u8*)data, leds); //Can be allocated on stack because it's passed to thread which maintains this stack? maybe? //TODO understand
+    auto controller = ShaderLEDs_Controllers::rainbow002_002((u8*)data, leds); //Can be allocated on stack because it's passed to thread which maintains this stack? maybe? //TODO understand
 
     LEDGraphics* g = new LEDGraphics(leds, 3, (u8*)&data, 800, 800); //Allocate memory for it because this stack is going to be destroyed by glutInit
     g->set_custom_configuration(square_i_cosine_lambda(leds), square_i_sine_lambda(leds), square_partition_size_lambda(leds));
