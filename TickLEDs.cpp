@@ -26,10 +26,9 @@ void TickLEDs::tick(float dt) {
 	elapsed += dt;
 	this->entity_handler(dt);
 	for (int i = 0; i < entities.size(); i++) {
-		if (!entities[i]) {
-			continue;
+		if (auto p = entities[i].get()) {
+			p->tick_function(dt);
 		}
-		entities[i]->tick_function(dt);
 	}
 }
 

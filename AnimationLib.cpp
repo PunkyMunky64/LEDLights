@@ -27,5 +27,9 @@ std::unique_ptr<ShaderLEDs> ShaderLEDs_Controllers::rainbow002_003(u8* data, int
 }
 
 std::unique_ptr<TickLEDs> TickLEDs_Controllers::missles001_001(u8* data, int leds) {
-	return TickLEDs_Controller_Bases::missles001(data, leds, 3, 7, 10.0, 5.0, std::make_shared<Colors::HSVColorPath>(200, 255), 95 * 2, 138 * 2, 500);
+	return TickLEDs_Controller_Bases::missles001(data, leds, 30, 70, 10.0, 5.0, std::make_shared<Colors::HSVColorPath>(200, 255), 95 * 2, 138 * 2, 500);
+}
+
+std::unique_ptr<TickLEDs> TickLEDs_Controllers::waves001_001(u8* data, int leds) {
+    return TickLEDs_Controller_Bases::waves001(data, leds, -20, 20, 1, 5, std::make_shared<Colors::HSVColorPath>(200, 255), 95 * 2, 138 * 2, 3.0, 100, 10000);
 }

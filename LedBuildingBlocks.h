@@ -146,13 +146,10 @@ public:
 class ArbitraryCosinePath : public Colors::ColorPath360 {
 public:
     virtual Colors::RGBu8 to_rgb(float theta) override {
-        // Time varying pixel color
         u8 colr = 255 * (0.5 + 0.5 * cos(rad(theta) + 0));
         u8 colg = 255 * (0.5 + 0.5 * cos(rad(theta) + 2 + 0.5));
         u8 colb = 255 * (0.5 + 0.5 * cos(rad(theta) + 4));
         
-        // Output to screen
-        // std::cout << "Outputting RGB values: " << (int)colr << ", " << (int)colg << ", " << (int)colb << "\n";
         return Colors::RGBu8(colr, colg, colb);
     }
 };
@@ -216,19 +213,23 @@ public:
     Colors::RGBu8 color() override;
     virtual Colors::RGBu8 intensity(Colors::RGBu8, float multiplier) override;
 
+    float hvelocity();
     void set_velocity(float v);
+    void set_hvelocity(float vh);
     void alter_intensity_coeff(float factor);
     float height(void);
 
-    BellWave(float vi, Colors::RGBu8 color, float intensity_coeff, float x, float hi, float vh, int left_max, int right_max, int leds, float kill_threshold, float split_threshold);
+    BellWave(float vi, Colors::RGBu8 color, float intensity_coeff, float sigma, float x, float hi, float vh, int left_max, int right_max, int leds, float kill_threshold, float split_threshold);
+
 protected:
     virtual void tick_function(float dt) override;
+    
 private:
     float kill_threshold;
     float v;
     Colors::RGBu8 c;
     float intensity_coeff;
-    float x;
+    float sigma;
     float h;
     float vh;
 };
@@ -239,16 +240,29 @@ public:
     std::function<float(float dt, float elapsed)> waveProbability;
     std::function<Colors::RGBu8(float elapsed)> waveColor;
     std::function<float(float elapsed)> waveVelocity;
-    std::function<float(float elapsed)> waveHeight;
     std::function<float(float elapsed)> waveHeightVelocity;
     std::function<float(float elapsed)> waveX;
     std::function<float(float elapsed)> waveSplitVelocity;
-    std::vector<std::weak_ptr<BellWave>> wave_entities;
     float max_intensity_threshold;
     float min_intensity_threshold;
+    float sigma;
     //std::function<float(float elapsed)> waveSplitThreshold; //TODO? each wave chooses an initial max threshold?
-
-    void entity_handler(float dt) override;
+    //std::function<float(float elapsed)> waveSigma //TODO? each wave can have a different wwidth multiplier
+    //std::function<float(float elapsed)> waveIntensityCoeff //TODO? each wave can have a different intensity coeff
 private:
+    std::vector<std::weak_ptr<BellWave>> wave_entities;
+    void entity_handler(float dt) override;
     void add_bellwave(BellWave* wave);
+
+public:
+    explicit RandomBellWaves(u8* stream, int led_count, std::function<float(float dt, float elapsed)> waveProbability, std::function<Colors::RGBu8(float elapsed)> waveColor, std::function<float(float elapsed)> waveX, std::function<float(float elapsed)> waveVelocity, std::function<float(float elapsed)> waveHeightVelocity, float sigma, float min_intensity_threshold, float max_intensity_threshold) : TickLEDs(stream, led_count, Blending::add) {
+        this->waveProbability = waveProbability;
+        this->waveColor = waveColor;
+        this->waveVelocity = waveVelocity;
+        this->waveHeightVelocity = waveHeightVelocity;
+        this->waveX = waveX;
+        this->max_intensity_threshold = max_intensity_threshold;
+        this->min_intensity_threshold = min_intensity_threshold;
+        this->sigma = sigma;
+    }
 };

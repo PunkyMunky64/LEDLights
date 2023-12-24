@@ -15,18 +15,18 @@ typedef unsigned char u8;
 void test();
 void test_LEDGfx();
 void test_ShaderLED();
-void test_MissleStarter();
+void test_TickLED();
 
 
 void main() {
-    test_MissleStarter();
+    test_TickLED();
 }
 
-void test_MissleStarter() {
+void test_TickLED() {
     constexpr int leds = 900;
     u8 data[leds][3];
     srand(time(NULL));
-    auto controller = TickLEDs_Controllers::missles001_001((u8*)data, leds);
+    auto controller = TickLEDs_Controllers::waves001_001((u8*)data, leds);
 
     LEDGraphics* g = new LEDGraphics(leds, 3, (u8*)&data, 800, 800);
     g->set_custom_configuration(square_i_cosine_lambda(leds), square_i_sine_lambda(leds), square_partition_size_lambda(leds));
@@ -40,7 +40,7 @@ void test_ShaderLED() {
     constexpr int leds = 900;
     u8 data[leds][3];
     srand(time(NULL));
-    auto controller = ShaderLEDs_Controllers::rainbow002_002((u8*)data, leds); //Can be allocated on stack because it's passed to thread which maintains this stack? maybe? //TODO understand
+    auto controller = ShaderLEDs_Controllers::rainbow002_003((u8*)data, leds); //Can be allocated on stack because it's passed to thread which maintains this stack? maybe? //TODO understand
 
     LEDGraphics* g = new LEDGraphics(leds, 3, (u8*)&data, 800, 800); //Allocate memory for it because this stack is going to be destroyed by glutInit
     g->set_custom_configuration(square_i_cosine_lambda(leds), square_i_sine_lambda(leds), square_partition_size_lambda(leds));

@@ -30,7 +30,7 @@ namespace ShaderLEDs_Controller_Bases {
 namespace TickLEDs_Controller_Bases {
 	inline std::unique_ptr<TickLEDs> missles001(u8* data, int leds, int mincms, int maxcms, int isq, int red, std::shared_ptr<Colors::ColorPath360> path, int mindeg, int maxdeg, int probabilitydivider) {
 		std::function<float(float)> velocity = [mincms, maxcms](float){
-			return randrange(mincms, maxcms, 10) / 10;
+			return randrange(mincms, maxcms, 10) / 100;
 		};
 		std::function<float(float)> isqLaw = [isq](float) {
 			return isq;
@@ -44,7 +44,25 @@ namespace TickLEDs_Controller_Bases {
 		std::function<float(float, float)> missleProbability = [probabilitydivider](float dt, float) {
 			return dt / probabilitydivider;
 		};
-		return (std::unique_ptr<TickLEDs>)std::make_unique<MissleStarter>((u8*)data, leds, missleProbability, missleColor, isqLaw, redshift, velocity);
+		return (std::unique_ptr<TickLEDs>)std::make_unique<MissleStarter>(data, leds, missleProbability, missleColor, isqLaw, redshift, velocity);
+	}
+	inline std::unique_ptr<TickLEDs> waves001(u8* data, int leds, int min_vx_cms, int max_vx_cms, int max_vh_cms, int min_vh_cms, std::shared_ptr<Colors::ColorPath360> path, int mindeg, int maxdeg, int split_threshold, int probabilitydivider, float sigma) {
+		std::function<float(float)> velocity = [min_vx_cms, max_vx_cms](float) {
+			return randrange(min_vx_cms, max_vx_cms, 10) / 100;
+		};
+		std::function<float(float)> hvelocity = [min_vh_cms, max_vh_cms](float) {
+			return randrange(min_vh_cms, max_vh_cms, 10) / 100;
+		};
+		std::function<float(float)> x = [leds](float) {
+			return randrange(0, leds, 1);
+		};
+		std::function<Colors::RGBu8(float)> waveColor = [path, mindeg, maxdeg](float) {
+			return path->to_rgb(randrange(mindeg, maxdeg, 10));
+		};
+		std::function<float(float, float)> waveProbability = [probabilitydivider](float dt, float) {
+			return dt / probabilitydivider;
+		};
+		return (std::unique_ptr<TickLEDs>)std::make_unique<RandomBellWaves>(data, leds, waveProbability, waveColor, x, velocity, hvelocity, sigma, 0.01, split_threshold);
 	}
 }
 
@@ -58,4 +76,5 @@ namespace ShaderLEDs_Controllers {
 
 namespace TickLEDs_Controllers {
 	std::unique_ptr<TickLEDs> missles001_001(u8* data, int leds);
+    std::unique_ptr<TickLEDs> waves001_001(u8 *data, int leds);
 }
